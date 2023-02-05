@@ -3,10 +3,10 @@
 #include <time.h>
 #include <string.h>
 
-LedControl lc=LedControl(12,10,11,1);
-#define BLUE 3
-#define GREEN 5
-#define RED 6
+#include <SPI.h>
+#include <SD.h> 
+
+LedControl lc=LedControl(6,3,5,1); //12,10,11
 
 // unsigned long delaytime1=5000;
 // unsigned long delaytime2=250;
@@ -42,12 +42,6 @@ void setup() {
   /* and clear the display */
   lc.clearDisplay(0);
 
-  pinMode(RED, OUTPUT); 
-  pinMode(GREEN, OUTPUT);
-  pinMode(BLUE, OUTPUT);
-  digitalWrite(RED, HIGH);
-  digitalWrite(GREEN, LOW);
-  digitalWrite(BLUE, LOW);
 
   pinMode(7,INPUT_PULLUP);
   pinMode(8,INPUT_PULLUP);
@@ -95,7 +89,7 @@ void loop() {
       time_session = millis() - int_session_spent;
       
       int_effort_start = millis() - dict_TimeSpent.get(int_effort);
-      int_running = 1;
+      int_running = -2;
       
     }
     //Wait for UpKey
@@ -114,22 +108,6 @@ void loop() {
 // Control the RGB LED
 ////////////////////////////////////////////////////
 
-  //If paused, blink
-  if ( int_effort == -1) {
-    if ( millis() % 1000 > 250 ) {
-      analogWrite(RED, 255); analogWrite(GREEN,0  ); analogWrite(BLUE,0  );
-    } else {
-      analogWrite(RED, 0  ); analogWrite(GREEN,0  ); analogWrite(BLUE,0  );
-    }
-  }
-
-  //Otherwise, set light to effort color
-  if ( int_effort == 0) { analogWrite(RED, 255); analogWrite(GREEN,0  ); analogWrite(BLUE,0  );}
-  if ( int_effort == 1) { analogWrite(RED,   0); analogWrite(GREEN,255); analogWrite(BLUE,0  );}
-  if ( int_effort == 2) { analogWrite(RED,   0); analogWrite(GREEN,0  ); analogWrite(BLUE,255);}
-  if ( int_effort == 3) { analogWrite(RED, 255); analogWrite(GREEN,255); analogWrite(BLUE,0  );}
-  if ( int_effort == 4) { analogWrite(RED, 255); analogWrite(GREEN,0  ); analogWrite(BLUE,255  );}
-  if ( int_effort == 5) { analogWrite(RED,   0); analogWrite(GREEN,255); analogWrite(BLUE,255);}
 
   
 ////////////////////////////////////////////////////
@@ -138,7 +116,6 @@ void loop() {
   
   //Only Update if Running
   if ( int_running == 1 ) {
-
     //Effort Time Keeper
     for ( int y = 0; y < 8; y++)
     {
@@ -218,6 +195,31 @@ void loop() {
       lc.setLed(0,7,y,dict_Col_Lights.get(y));
     }
   }
+  else if( int_running == -1)
+  {
+
+
+    for (int y = 0; y < 8; ++y)
+    {
+      lc.setLed(0,y,0,false);
+      lc.setLed(0,y,1,false);
+      lc.setLed(0,y,2,false);
+      lc.setLed(0,y,3,true);
+      lc.setLed(0,y,4,true);
+      lc.setLed(0,y,5,false);
+      lc.setLed(0,y,6,false);
+      lc.setLed(0,y,7,false);
+    }
+
+
+    
+  }
+  else if ( int_running == -2 )
+  {
+    clearBoard();
+    int_running = 1;
+  }
+
 }
     
   
